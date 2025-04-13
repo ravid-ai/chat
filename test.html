@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ravid AI - دستیار هوشمند مبتنی بر GPT-4o</title>
+  <!-- فونت‌های بهبود یافته -->
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Estedad:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- آیکن‌های Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- هایلایتر کد (Prism.js) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <!-- استایل اصلی -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- سایدبار -->
+    <div class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-robot"></i>
+        </div>
+        <span>Ravid AI</span>
+      </div>
+      
+      <div class="sidebar-options">
+        <button class="option active" aria-label="گفتگوی جدید">
+          <i class="fas fa-plus-circle"></i>
+          <span>گفتگوی جدید</span>
+        </button>
+        
+        <!-- بخش تاریخچه گفتگوها -->
+        <div class="chat-history-section">
+          <div class="section-title">
+            <span>تاریخچه گفتگوها</span>
+            <button class="collapse-btn" title="بازکردن/بستن">
+              <i class="fas fa-chevron-down"></i>
+            </button>
+          </div>
+          
+          <div class="chat-history-list">
+            <div class="history-item">
+              <i class="fas fa-comment-alt"></i>
+              <span>گفتگو درباره برنامه‌نویسی</span>
+            </div>
+            <div class="history-item">
+              <i class="fas fa-comment-alt"></i>
+              <span>کمک در نوشتن مقاله</span>
+            </div>
+            <div class="history-item">
+              <i class="fas fa-comment-alt"></i>
+              <span>پیشنهادات سفر به شیراز</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- بخش تنظیمات مدل -->
+        <div class="model-settings-section">
+          <div class="section-title">
+            <span>تنظیمات مدل</span>
+            <button class="collapse-btn" title="بازکردن/بستن">
+              <i class="fas fa-chevron-down"></i>
+            </button>
+          </div>
+          
+          <div class="model-settings">
+            <div class="setting-item">
+              <label for="modelSelect">مدل هوش مصنوعی:</label>
+              <div class="model-selector">
+                <select id="modelSelect" class="setting-control">
+                  <option value="gpt-4o-all" selected>GPT-4o</option>
+                  <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                  <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                </select>
+                <div class="model-badge">Pro</div>
+              </div>
+            </div>
+            
+            <div class="setting-item">
+              <label for="tempRange">دمای پاسخ‌ها:</label>
+              <div class="range-with-value">
+                <input type="range" id="tempRange" min="0" max="1" step="0.1" value="0.7" class="setting-range">
+                <span id="tempValue">0.7</span>
+              </div>
+              <small class="setting-info">مقدار بالاتر = خلاقیت بیشتر</small>
+            </div>
+            
+            <div class="setting-item">
+              <label for="maxTokens">حداکثر طول پاسخ:</label>
+              <div class="range-with-value">
+                <input type="range" id="maxTokens" min="100" max="4000" step="100" value="1000" class="setting-range">
+                <span id="tokenValue">1000</span>
+              </div>
+              <small class="setting-info">تعداد کلمات خروجی</small>
+            </div>
+          </div>
+        </div>
+        
+        <button class="option" aria-label="تنظیمات">
+          <i class="fas fa-cog"></i>
+          <span>تنظیمات</span>
+        </button>
+      </div>
+      
+      <!-- تغییر تم در انتهای سایدبار -->
+      <div class="sidebar-footer">
+        <button id="themeToggle" aria-label="تغییر تم">
+          <i class="fas fa-moon"></i>
+          <span>حالت شب</span>
+        </button>
+        
+        <button id="exportChat" aria-label="دانلود گفتگو">
+          <i class="fas fa-download"></i>
+          <span>دانلود گفتگو</span>
+        </button>
+      </div>
+    </div> <!-- پایان سایدبار -->
+
+    <!-- محتوای اصلی -->
+    <div class="main-content">
+      <!-- هدر چت -->
+      <div class="chat-header">
+        <div class="chat-title">
+          <div class="model-avatar">
+            <div class="avatar-inner">
+              <i class="fas fa-robot"></i>
+            </div>
+            <span class="status-dot"></span>
+          </div>
+          <div class="title-info">
+            <h1>GPT-4o</h1>
+            <span class="status online">آنلاین</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="header-btn" id="webSearchToggle" title="جستجوی وب">
+            <i class="fas fa-globe"></i>
+          </button>
+          <button class="header-btn clear-chat" aria-label="پاک کردن گفتگو" title="پاک کردن گفتگو">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+          <button class="header-btn mobile-menu" aria-label="منوی موبایل" title="باز کردن منو">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- کانتینر چت -->
+      <div class="chat-container">
+        <!-- محوطه نمایش پیام‌ها -->
+        <div class="chat-area" id="chatArea">
+          <!-- پیام‌های خوش‌آمدگویی (راهنمای اولیه) -->
+          <div class="welcome-container">
+            <div class="welcome-header">
+              <div class="welcome-icon">
+                <i class="fas fa-robot"></i>
+              </div>
+              <h2>به Ravid AI خوش آمدید!</h2>
+            </div>
+            <p class="welcome-text">من یک دستیار هوش مصنوعی هستم که می‌توانم به شما در موارد مختلف کمک کنم:</p>
+            
+            <div class="capabilities">
+              <div class="capability-item">
+                <div class="capability-icon"><i class="fas fa-pen"></i></div>
+                <div class="capability-info">
+                  <h3>نوشتن و محتوا</h3>
+                  <p>ایجاد متن، ایمیل، مقاله و محتوای خلاقانه</p>
+                </div>
+              </div>
+              <div class="capability-item">
+                <div class="capability-icon"><i class="fas fa-code"></i></div>
+                <div class="capability-info">
+                  <h3>برنامه‌نویسی</h3>
+                  <p>کمک در کدنویسی، دیباگ و توضیح مفاهیم</p>
+                </div>
+              </div>
+              <div class="capability-item">
+                <div class="capability-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="capability-info">
+                  <h3>آموزش و یادگیری</h3>
+                  <p>پاسخ به سوالات و توضیح مفاهیم پیچیده</p>
+                </div>
+              </div>
+              <div class="capability-item">
+                <div class="capability-icon"><i class="fas fa-image"></i></div>
+                <div class="capability-info">
+                  <h3>تحلیل تصاویر</h3>
+                  <p>شناسایی، توصیف و تفسیر محتوای تصاویر</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="welcome-prompt">
+              <div class="prompt-heading">
+                <i class="fas fa-lightbulb"></i>
+                <h3>چطور می‌توانم امروز به شما کمک کنم؟</h3>
+              </div>
+              <div class="example-prompts">
+                <button class="example-prompt"><i class="fas fa-code"></i> کمکم کن یک سایت با React بسازم</button>
+                <button class="example-prompt"><i class="fas fa-book"></i> یک داستان کوتاه درباره سفر در زمان بنویس</button>
+                <button class="example-prompt"><i class="fas fa-search"></i> درباره جدیدترین پیشرفت‌های هوش مصنوعی توضیح بده</button>
+                <button class="example-prompt"><i class="fas fa-chart-line"></i> استراتژی رشد برای یک فروشگاه آنلاین پیشنهاد کن</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- بخش ورودی کاربر -->
+        <div class="input-container">
+          <!-- ناحیه اصلی ورودی و دکمه‌ها -->
+          <div class="input-area">
+            <!-- ورودی متن اصلی -->
+            <textarea id="userInput" placeholder="سوال خود را بپرسید یا دستورالعمل بنویسید..." rows="1"></textarea>
+
+            <!-- ورودی فایل مخفی -->
+            <input type="file" id="imageInput" accept="image/*" style="display: none;" aria-label="انتخاب تصویر">
+
+            <!-- دکمه‌های اکشن -->
+            <div class="input-buttons">
+              <button class="action-btn attach-file" id="attachFileBtn" aria-label="پیوست تصویر" title="پیوست تصویر">
+                <i class="fas fa-paperclip"></i>
+              </button>
+              
+              <button class="action-btn voice-input" id="voiceInputBtn" aria-label="ورودی صوتی" title="ورودی صوتی">
+                <i class="fas fa-microphone"></i>
+              </button>
+              
+              <button class="action-btn send-message" id="sendButton" aria-label="ارسال پیام" title="ارسال">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- نوار پیشرفت -->
+          <div class="progress-bar" id="progressBar">
+            <div class="progress-inner"></div>
+          </div>
+          
+
+          </div>
+        </div>
+        
+        <!-- نشانگر لودینگ -->
+        <div class="loading" id="loading" style="display: none;">
+          <div class="wave-loading">
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+          </div>
+          <span>در حال پردازش...</span>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- اسکریپت‌ها -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+  
+  <!-- اسکریپت اصلی برنامه -->
+  <script src="script.js"></script>
+</body>
+</html>
