@@ -629,6 +629,24 @@ body {
     transparent 1px
   );
 }
+.bot-avatar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+#modelAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-left: 8px;
+  margin-right: 4px;
+  vertical-align: middle;
+  position: relative;
+  z-index: 2;
+}
+
 
 /* =============== هدر چت - نمای جدید =============== */
 .chat-header {
