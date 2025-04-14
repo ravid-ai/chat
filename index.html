@@ -25,7 +25,7 @@
       </div>
       
       <div class="sidebar-options">
-        
+ 
         <!-- بخش تنظیمات مدل -->
         <div class="model-settings-section">
           <div class="section-title">
@@ -40,8 +40,8 @@
               <label for="modelSelect">مدل هوش مصنوعی:</label>
               <div class="model-selector">
                 <select id="modelSelect" class="setting-control">
-                  <option value="gpt-4o-mini">GPT-4o Mini</option>
                     <option value="gpt-4o-all">GPT-4o All</option>
+                    <option value="gpt-4o-mini">GPT-4o Mini</option>
                     <option value="deepseek-r1">Deepseek R1</option>
                     <option value="claude-3-5-haiku-latest">Claude 3.5 Haiku</option>
                     <option value="grok-3-mini">Grok 3 Mini</option>
@@ -55,17 +55,12 @@
               <label for="tempRange">دمای پاسخ‌ها:</label>
               <div class="range-with-value">
                 <input type="range" id="tempRange" min="0" max="1" step="0.1" value="1.0" class="setting-range">
-                <span id="tempValue"></span>
+                <span id="tempValue">1.0</span>
               </div>
               <small class="setting-info">مقدار بالاتر = خلاقیت بیشتر</small>
             </div>
             
             <div class="setting-item">
-
-              <div class="range-with-value">
-                
-              </div>
-              
             </div>
           </div>
         </div>
@@ -98,7 +93,7 @@
           <div class="model-avatar">
             <div class="avatar-inner">
               <div class="bot-avatar">
-                <img id="modelAvatar" src="gpt-4o-mini.png" alt="Model Avatar" />
+                <img id="modelAvatar" src="gpt-4o-all.png" alt="Model Avatar" />
               </div>
               
              
@@ -106,7 +101,7 @@
             <span class="status-dot"></span>
           </div>
           <div class="title-info">
-            <h1 id="modelNameHeader">GPT-4o Mini</h1> <!-- اینجا شناسه اضافه کردیم -->
+            <h1 id="modelNameHeader">GPT-4o</h1> <!-- اینجا شناسه اضافه کردیم -->
           </div>          
         </div>
         <div class="header-actions">
