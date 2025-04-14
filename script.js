@@ -216,7 +216,7 @@ You are integrated into a public-facing website, so you must provide an intellig
             content: userContent
           }
         ],
-        temperature: parseFloat(document.getElementById('tempRange')?.value || 0.7),
+        temperature: parseFloat(document.getElementById('tempRange')?.value || 1.0),
         max_tokens: parseInt(document.getElementById('maxTokens')?.value || 1000)
       })
     });
@@ -659,3 +659,45 @@ additionalStyle.textContent = `
 `;
 
 document.head.appendChild(additionalStyle);
+
+document.addEventListener('DOMContentLoaded', function () {
+  const modelSelect = document.getElementById('modelSelect');
+  const modelHeader = document.getElementById('modelNameHeader');
+
+  if (modelSelect && modelHeader) {
+    modelSelect.addEventListener('change', function () {
+      const selectedModel = modelSelect.options[modelSelect.selectedIndex].text;
+      modelHeader.textContent = selectedModel;
+    });
+  }
+});
+
+const modelSelect = document.getElementById('modelSelect');
+const modelAvatar = document.getElementById('modelAvatar');
+
+if (modelSelect && modelAvatar) {
+  modelSelect.addEventListener('change', () => {
+    const selectedModel = modelSelect.value;
+    modelAvatar.src = `${selectedModel}.png`;
+    modelAvatar.alt = `${selectedModel} Avatar`;
+
+    // تغییر نام بالای آواتار (اختیاری)
+    const modelNameHeader = document.getElementById('modelNameHeader');
+    if (modelNameHeader) {
+      modelNameHeader.textContent = formatModelName(selectedModel);
+    }
+  });
+}
+
+// تابع برای نمایش اسم زیباتر از مدل (مثلاً "GPT-4o All" به جای "gpt-4o-all")
+function formatModelName(modelKey) {
+  const names = {
+    'gpt-4o-all': 'GPT-4o All',
+    'gpt-4o-mini': 'GPT-4o Mini',
+    'deepseek-r1': 'Deepseek R1',
+    'claude-3-5-haiku-latest': 'Claude 3.5 Haiku',
+    'grok-3-mini': 'Grok 3 Mini',
+    'llama-4-maverick': 'LLaMA 4 Maverick'
+  };
+  return names[modelKey] || modelKey;
+}
