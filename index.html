@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="Pez8S6vA_IUuZXJLoB3Oot3BBosaceFVAeaYV_z2_Uo" />
+  <title>Ravid AI ✨</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Estedad:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Prism.js Theme (Atom Dark for better contrast) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo-container">
+        <div class="logo">
+          <img src="logo.png" alt="Ravid AI Logo" class="logo-icon"> <!-- فرض میکنیم لوگو داری -->
+          <span class="logo-text">Ravid AI</span>
+        </div>
+        <button class="sidebar-close-btn mobile-only" aria-label="بستن منو">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <!-- Model Settings Section -->
+        <div class="nav-section model-settings-section">
+          <button class="section-header" aria-expanded="true" aria-controls="modelSettingsContent">
+            <span><i class="fas fa-brain fa-fw"></i> تنظیمات مدل</span>
+            <i class="fas fa-chevron-down collapse-icon"></i>
+          </button>
+          <div class="section-content" id="modelSettingsContent">
+            <div class="setting-item">
+              <label for="modelSelect">مدل هوش مصنوعی:</label>
+              <div class="custom-select-wrapper">
+                <select id="modelSelect" class="setting-control">
+                  <option value="gpt-4o-all">GPT-4o All</option>
+                  <option value="gpt-4o-mini">GPT-4o Mini</option>
+                  <option value="deepseek-r1">Deepseek R1</option>
+                  <option value="gpt-4.1">GPT-4.1</option> <!-- مقدار value اصلاح شد -->
+                  <option value="gpt-4.1-mini">GPT-4.1 Mini</option> <!-- مقدار value اصلاح شد -->
+                  <option value="gpt-4.1-nano">GPT-4.1 Nano</option> <!-- مقدار value اصلاح شد -->
+                  <option value="claude-3-5-haiku-latest">Claude 3.5 Haiku</option>
+                  <option value="grok-3-mini">Grok 3 Mini</option>
+                  <option value="llama-4-maverick">LLaMA 4 Maverick</option>
+                </select>
+                <i class="fas fa-angle-down select-arrow"></i>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <label for="tempRange">دمای پاسخ‌ها (خلاقیت):</label>
+              <div class="range-with-value">
+                <input type="range" id="tempRange" min="0" max="1" step="0.1" value="0.7" class="setting-range">
+                <span id="tempValue" class="range-value">0.7</span>
+              </div>
+              <small class="setting-info">بالاتر = خلاق‌تر، پایین‌تر = دقیق‌تر</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- General Settings Section (Placeholder) -->
+         <div class="nav-section">
+           <button class="nav-link" aria-label="تنظیمات کلی">
+              <i class="fas fa-cog fa-fw"></i>
+              <span>تنظیمات کلی</span>
+           </button>
+         </div>
+
+        <!-- Chat History Section (Placeholder for future) -->
+        <!-- <div class="nav-section chat-history-section">
+          <button class="section-header" aria-expanded="true" aria-controls="chatHistoryContent">
+            <span><i class="fas fa-history fa-fw"></i> تاریخچه گفتگو</span>
+            <i class="fas fa-chevron-down collapse-icon"></i>
+          </button>
+          <div class="section-content" id="chatHistoryContent">
+             <p class="placeholder-text">تاریخچه گفتگوها اینجا نمایش داده می‌شود.</p>
+          </div>
+        </div> -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="exportChat" class="footer-btn" aria-label="دانلود گفتگو">
+          <i class="fas fa-download fa-fw"></i>
+          <span>دانلود گفتگو</span>
+        </button>
+        <button id="themeToggle" class="footer-btn" aria-label="تغییر تم">
+          <i class="fas fa-moon fa-fw"></i>
+          <span>حالت شب</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Chat Header -->
+      <header class="chat-header">
+        <div class="chat-title">
+          <div class="model-avatar-wrapper">
+            <img id="modelAvatar" src="gpt-4o-all.png" alt="Model Avatar" class="model-avatar"/>
+            <span class="status-dot online"></span>
+          </div>
+          <div class="title-info">
+            <h1 id="modelNameHeader">GPT-4o All</h1>
+            <!-- <span class="model-status">آنلاین</span> -->
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="header-btn" id="webSearchToggle" title="جستجوی وب (فعال/غیرفعال)">
+            <i class="fas fa-globe"></i>
+          </button>
+          <button class="header-btn clear-chat" id="clearChatBtn" aria-label="پاک کردن گفتگو" title="پاک کردن گفتگو">
+            <i class="fas fa-eraser"></i>
+          </button>
+          <button class="header-btn mobile-menu-btn mobile-only" id="mobileMenuBtn" aria-label="باز کردن منو" title="باز کردن منو">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Chat Container -->
+      <div class="chat-container">
+        <!-- Chat Area -->
+        <div class="chat-area" id="chatArea">
+          <!-- Initial Welcome Message -->
+          <div class="welcome-container" id="welcomeContainer">
+            <div class="welcome-header">
+               <img src="logo.png" alt="Ravid AI Icon" class="welcome-icon">
+               <h2>به Ravid AI خوش آمدید!</h2>
+            </div>
+            <p class="welcome-text">دستیار هوش مصنوعی شما، آماده کمک به انجام کارهای شگفت‌انگیز!</p>
+
+            <div class="capabilities-grid">
+               <div class="capability-card">
+                  <i class="fas fa-pen-fancy card-icon"></i>
+                  <h3>نویسندگی خلاق</h3>
+                  <p>ایده‌پردازی، نوشتن متن، شعر، و...</p>
+               </div>
+               <div class="capability-card">
+                 <i class="fas fa-code card-icon"></i>
+                 <h3>کمک برنامه‌نویسی</h3>
+                 <p>تولید کد، رفع اشکال، توضیح مفاهیم</p>
+               </div>
+               <div class="capability-card">
+                  <i class="fas fa-graduation-cap card-icon"></i>
+                  <h3>یادگیری و آموزش</h3>
+                  <p>پاسخ به سوالات، خلاصه‌سازی مطالب</p>
+               </div>
+               <div class="capability-card">
+                 <i class="fas fa-camera-retro card-icon"></i>
+                 <h3>تحلیل تصویر</h3>
+                 <p>درک و توصیف محتوای تصاویر</p>
+               </div>
+            </div>
+
+            <div class="prompt-suggestions">
+               <h4>چند ایده برای شروع:</h4>
+               <div class="suggestions-list">
+                  <button class="suggestion-chip"><i class="fas fa-rocket"></i> یک ایده استارتاپی جدید پیشنهاد بده</button>
+                  <button class="suggestion-chip"><i class="fas fa-image"></i> این تصویر رو برام توصیف کن (بعد از پیوست)</button>
+                  <button class="suggestion-chip"><i class="fas fa-language"></i> "Hello World" رو به ۵ زبان مختلف بگو</button>
+                  <button class="suggestion-chip"><i class="fas fa-lightbulb"></i> چطور می‌تونم تمرکزم رو بیشتر کنم؟</button>
+               </div>
+            </div>
+          </div>
+          <!-- Messages will be appended here -->
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-container">
+          <!-- Attached Image Preview -->
+          <div class="image-preview-container" id="imagePreviewContainer" style="display: none;">
+            <img id="previewImage" src="#" alt="Preview" class="preview-image"/>
+            <button id="removeImageBtn" class="remove-image-btn" aria-label="حذف تصویر">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <!-- Input Area -->
+          <div class="input-area">
+            <textarea id="userInput" placeholder="پیام خود را بنویسید یا تصویر پیوست کنید..." rows="1"></textarea>
+
+            <!-- Hidden file input -->
+            <input type="file" id="imageInput" accept="image/*" style="display: none;" aria-label="انتخاب تصویر">
+
+            <div class="input-buttons">
+              <button class="action-btn attach-btn" id="attachFileBtn" aria-label="پیوست تصویر" title="پیوست تصویر">
+                <i class="fas fa-paperclip"></i>
+              </button>
+              <button class="action-btn voice-btn" id="voiceInputBtn" aria-label="ورودی صوتی" title="ورودی صوتی">
+                <i class="fas fa-microphone"></i>
+              </button>
+              <button class="action-btn send-btn" id="sendButton" aria-label="ارسال پیام" title="ارسال">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Loading/Progress Indicator -->
+           <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+              <div class="spinner"></div>
+              <span>در حال پردازش...</span>
+           </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Overlay for mobile sidebar -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <!-- Load Languages YOU NEED for Prism -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <!-- Showdown for Markdown -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+  <!-- Main Application Script -->
+  <script src="script.js"></script>
+</body>
+</html>
