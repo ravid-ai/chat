@@ -1,7 +1,9 @@
+
 document.addEventListener('DOMContentLoaded', () => {
   // --- Constants & API Key ---
   const COMET_API_KEY = "sk-OtiNbjY3B9e6rIFJRLifvBa1DNoJF6UjFZdHi0tJ2hXuF9SG"; // ← کلید واقعی شما
   const API_URL = 'https://api.cometapi.com/v1/chat/completions';
+  const CHAT_HISTORY_STORAGE_KEY = 'ravidAIChatHistory'; // Key for local storage
 
   // --- DOM Element Selection ---
   const chatArea = document.getElementById('chatArea');
@@ -24,10 +26,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const tempRange = document.getElementById('tempRange');
   const tempValueSpan = document.getElementById('tempValue');
   const exportChatBtn = document.getElementById('exportChat');
+  const clearHistoryBtn = document.getElementById('clearHistory'); // New clear history button
   const imagePreviewContainer = document.getElementById('imagePreviewContainer');
   const previewImage = document.getElementById('previewImage');
   const removeImageBtn = document.getElementById('removeImageBtn');
-  const welcomeContainer = document.getElementById('welcomeContainer'); // Get welcome container by ID
+  const welcomeContainer = document.getElementById('welcomeContainer');
+  const advancedSettingsToggle = document.getElementById('advancedSettingsToggle'); // Advanced settings toggle button
+  const advancedSettingsSection = document.querySelector('.advanced-settings'); // Advanced settings section
+  const topPRange = document.getElementById('topPRange'); // Top P range input
+  const topPValueSpan = document.getElementById('topPValue'); // Top P value span
+  const presencePenaltyRange = document.getElementById('presencePenaltyRange'); // Presence Penalty range input
+  const presencePenaltyValueSpan = document.getElementById('presencePenaltyValue'); // Presence Penalty value span
+  // const maxTokensInput = document.getElementById('maxTokensInput'); // Max Tokens input (commented out in HTML as well)
 
   // --- State Variables ---
   let attachedImageBase64 = null;
@@ -35,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let isSidebarOpen = false;
   let isRecognizingSpeech = false;
   let speechRecognition = null;
-  let conversationHistory = []; // Basic history (for API context, not display yet)
+  let conversationHistory = loadChatHistory(); // Load from local storage on init
 
   // --- Initialize Showdown and Prism ---
   const markdownConverter = new showdown.Converter({
@@ -60,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const updateRangeValue = (range, valueSpan) => {
     if (!range || !valueSpan) return;
-    const value = parseFloat(range.value).toFixed(1);
+    const value = parseFloat(range.value).toFixed(2); // Show 2 decimal places for Top P and Presence Penalty
     valueSpan.textContent = value;
     // Update slider background gradient fill
     const percentage = ((range.value - range.min) / (range.max - range.min)) * 100;
@@ -71,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const toast = document.createElement('div');
     toast.className = 'toast-notification';
     const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-    const iconColor = type === 'success' ? 'var(--success)' : 'var(--error)';
+    const iconColor = type === 'success' ? 'var(--success)' : (type === 'warning' ? 'var(--warning)' : 'var(--error)'); // Add warning type
     toast.innerHTML = `<i class="fas ${iconClass}" style="color: ${iconColor};"></i> ${message}`;
     document.body.appendChild(toast);
 
@@ -85,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         document.body.removeChild(toast);
       }, 300); // Wait for fade out transition
-    }, 3000); // Display duration
+    }, 3500); // Slightly longer display duration
   };
 
   const scrollToBottom = () => {
@@ -184,13 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 0);
     }
 
-    // Update conversation history (simple version)
-    conversationHistory.push({
-        role: isUser ? 'user' : 'assistant',
-        content: content || (imageUrl ? '[Image Sent]' : '') // Represent image if no text
-    });
-    // Optional: Limit history length
-    // if (conversationHistory.length > 10) conversationHistory.shift();
+    // Update conversation history
+    updateConversationHistory(isUser ? 'user' : 'assistant', content || (imageUrl ? '[Image Sent]' : ''));
 
 
     scrollToBottom();
@@ -273,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const names = {
         'gpt-4o-all': 'GPT-4o All',
         'gpt-4o-mini': 'GPT-4o Mini',
+        'o4-mini': 'o4-mini',
         'deepseek-r1': 'Deepseek R1',
         'gpt-4.1': 'GPT-4.1',
         'gpt-4.1-mini': 'GPT-4.1 Mini',
@@ -286,6 +292,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const updateModelUI = () => {
       const selectedModel = modelSelect.value;
+      const selectedOption = modelSelect.options[modelSelect.selectedIndex];
+      const modelAvatarSrc = selectedOption.getAttribute('data-avatar') || 'default-avatar.png'; // Get avatar from data attribute
       const modelExists = modelSelect.querySelector(`option[value="${selectedModel}"]`);
 
       if (modelExists) {
@@ -294,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (modelNameHeader) modelNameHeader.textContent = modelDisplayName;
           // Update Avatar Image
           if (modelAvatar) {
-              modelAvatar.src = `${selectedModel}.png`;
+              modelAvatar.src = modelAvatarSrc;
               modelAvatar.alt = `${modelDisplayName} Avatar`;
               modelAvatar.onerror = () => { modelAvatar.src = 'default-avatar.png'; }; // Fallback avatar
           }
@@ -305,6 +313,27 @@ document.addEventListener('DOMContentLoaded', () => {
           if (modelAvatar) modelAvatar.src = 'default-avatar.png';
       }
   };
+
+  // --- Local Storage for Chat History ---
+  function saveChatHistory() {
+      localStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(conversationHistory));
+  }
+
+  function loadChatHistory() {
+      const history = localStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
+      return history ? JSON.parse(history) : [];
+  }
+
+  function clearChatHistory() {
+      conversationHistory = [];
+      saveChatHistory();
+  }
+
+  function updateConversationHistory(role, content) {
+      conversationHistory.push({ role: role, content: content });
+      saveChatHistory(); // Save after each message
+      // Optional: Limit history length - if needed, implement history trimming here
+  }
 
 
   // --- API Call Function ---
@@ -357,7 +386,9 @@ Key Capabilities & Instructions:
           model: model,
           messages: messages, // Send history + new message
           temperature: parseFloat(tempRange?.value ?? 0.7),
-          // max_tokens: 1000, // Optional: set max tokens if needed
+          top_p: parseFloat(topPRange?.value ?? 0.95), // Include top_p
+          presence_penalty: parseFloat(presencePenaltyRange?.value ?? 0.0), // Include presence_penalty
+          // max_tokens: parseInt(maxTokensInput.value), // Optional: set max tokens if needed (commented out in UI)
         })
       });
 
@@ -526,7 +557,9 @@ Key Capabilities & Instructions:
       : '<i class="fas fa-moon fa-fw"></i> حالت شب';
     themeToggle.setAttribute('aria-label', isDarkMode ? 'تغییر به حالت روز' : 'تغییر به حالت شب');
     // Update range slider thumbs for theme change
-     updateRangeValue(tempRange, tempValueSpan); // Recalculates background size too
+     updateRangeValue(tempRange, tempValueSpan);
+     updateRangeValue(topPRange, topPValueSpan); // Update Top P slider thumb
+     updateRangeValue(presencePenaltyRange, presencePenaltyValueSpan); // Update Presence Penalty slider thumb
   };
 
   const handleSidebarToggle = (forceOpen = null) => {
@@ -553,13 +586,21 @@ Key Capabilities & Instructions:
     // Clear after animation
     setTimeout(() => {
       chatArea.innerHTML = ''; // Clear content
-      conversationHistory = []; // Clear history array
+      // conversationHistory = []; // Keep history in local storage, just clear display now. If you want to clear history completely, uncomment this line and localStorage.removeItem below
+      // saveChatHistory();
       // Optionally, re-add the welcome message or a confirmation message
       addMessage("گفتگو پاک شد. چطور می‌توانم کمکتان کنم؟", false);
       // If you want the full welcome message back:
       // chatArea.appendChild(welcomeContainer); // Assuming welcomeContainer wasn't removed permanently
       // welcomeContainer.classList.remove('fade-out');
     }, messages.length * 30 + 300); // Wait for all animations + buffer
+  };
+
+  const handleClearHistory = () => {
+      clearChatHistory(); // Clear history data from local storage
+      handleClearChat(); // Optionally also clear the current chat display
+      localStorage.removeItem(CHAT_HISTORY_STORAGE_KEY); // Ensure history is fully cleared
+      showToast('تاریخچه گفتگو پاک شد.', 'warning'); // Use warning for history clear as it's more significant than chat clear
   };
 
 
@@ -654,6 +695,13 @@ Key Capabilities & Instructions:
       content.hidden = isExpanded;
   };
 
+  const handleAdvancedSettingsToggle = () => {
+      const isExpanded = advancedSettingsToggle.classList.contains('expanded');
+      advancedSettingsToggle.classList.toggle('expanded', !isExpanded);
+      advancedSettingsSection.style.display = isExpanded ? 'none' : 'block';
+      advancedSettingsToggle.setAttribute('aria-expanded', !isExpanded); // For accessibility
+  };
+
 
   // --- Event Listeners ---
   if (sendButton) sendButton.addEventListener('click', handleSendMessage);
@@ -676,6 +724,7 @@ Key Capabilities & Instructions:
   if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', () => handleSidebarToggle(false));
   if (overlay) overlay.addEventListener('click', () => handleSidebarToggle(false));
   if (clearChatBtn) clearChatBtn.addEventListener('click', handleClearChat);
+  if (clearHistoryBtn) clearHistoryBtn.addEventListener('click', handleClearHistory); // New clear history button event
   if (attachFileBtn) attachFileBtn.addEventListener('click', () => imageInput?.click());
   if (imageInput) imageInput.addEventListener('change', handleImageInputChange);
   if (removeImageBtn) removeImageBtn.addEventListener('click', removeAttachedImage);
@@ -684,6 +733,10 @@ Key Capabilities & Instructions:
   if (exportChatBtn) exportChatBtn.addEventListener('click', handleExportChat);
   if (modelSelect) modelSelect.addEventListener('change', updateModelUI);
   if (tempRange) tempRange.addEventListener('input', () => updateRangeValue(tempRange, tempValueSpan));
+  if (topPRange) topPRange.addEventListener('input', () => updateRangeValue(topPRange, topPValueSpan)); // Top P range listener
+  if (presencePenaltyRange) presencePenaltyRange.addEventListener('input', () => updateRangeValue(presencePenaltyRange, presencePenaltyValueSpan)); // Presence Penalty range listener
+  if (advancedSettingsToggle) advancedSettingsToggle.addEventListener('click', handleAdvancedSettingsToggle); // Advanced settings toggle listener
+
 
    // Event listener for suggestion chips (using event delegation)
    const suggestionsContainer = document.querySelector('.suggestions-list');
@@ -713,6 +766,8 @@ Key Capabilities & Instructions:
 
     // Initial slider value display
     updateRangeValue(tempRange, tempValueSpan);
+    updateRangeValue(topPRange, topPValueSpan); // Initialize Top P slider value
+    updateRangeValue(presencePenaltyRange, presencePenaltyValueSpan); // Initialize Presence Penalty slider value
 
     // Initial model display
     updateModelUI();
