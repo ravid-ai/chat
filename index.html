@@ -1,16 +1,19 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google-site-verification" content="Pez8S6vA_IUuZXJLoB3Oot3BBosaceFVAeaYV_z2_Uo" />
-  <title>Ravid AI ✨</title>
+  <title>Ravid AI ✨ هوش مصنوعی راوید</title>
 
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Estedad:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- Prism.js Theme (Atom Dark for better contrast) -->
+  <!-- Prism.js Theme -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="style.css">
@@ -20,10 +23,10 @@
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
       <div class="logo-container">
-        <div class="logo">
-          <img src="logo.png" alt="Ravid AI Logo" class="logo-icon"> <!-- فرض میکنیم لوگو داری -->
+        <a href="#" class="logo">
+          <img src="logo.png" alt="Ravid AI Logo" class="logo-icon" loading="lazy">
           <span class="logo-text">Ravid AI</span>
-        </div>
+        </a>
         <button class="sidebar-close-btn mobile-only" aria-label="بستن منو">
           <i class="fas fa-times"></i>
         </button>
@@ -41,28 +44,68 @@
               <label for="modelSelect">مدل هوش مصنوعی:</label>
               <div class="custom-select-wrapper">
                 <select id="modelSelect" class="setting-control">
-                  <option value="gpt-4o-all">GPT-4o All</option>
-                  <option value="gpt-4o-mini">GPT-4o Mini</option>
-                  <option value="deepseek-r1">Deepseek R1</option>
-                  <option value="gpt-4.1">GPT-4.1</option> <!-- مقدار value اصلاح شد -->
-                  <option value="gpt-4.1-mini">GPT-4.1 Mini</option> <!-- مقدار value اصلاح شد -->
-                  <option value="gpt-4.1-nano">GPT-4.1 Nano</option> <!-- مقدار value اصلاح شد -->
-                  <option value="claude-3-5-haiku-latest">Claude 3.5 Haiku</option>
-                  <option value="grok-3-mini">Grok 3 Mini</option>
-                  <option value="llama-4-maverick">LLaMA 4 Maverick</option>
+                  <option value="gpt-4o-all" data-avatar="gpt-4o-all.png">GPT-4o All</option>
+                  <option value="gpt-4o-mini" data-avatar="gpt-4o-mini.png">GPT-4o Mini</option>
+                  <option value="o4-mini" data-avatar="o4-mini.png">o4-mini</option>
+                  <option value="deepseek-r1" data-avatar="deepseek-r1.png">Deepseek R1</option>
+                  <option value="gpt-4.1" data-avatar="gpt-4.1.png">GPT-4.1</option>
+                  <option value="gpt-4.1-mini" data-avatar="gpt-4.1-mini.png">GPT-4.1 Mini</option>
+                  <option value="gpt-4.1-nano" data-avatar="gpt-4.1-nano.png">GPT-4.1 Nano</option>
+                  <option value="claude-3-5-haiku-latest" data-avatar="claude-3-5-haiku-latest.png">Claude 3.5 Haiku</option>
+                  <option value="grok-3-mini" data-avatar="grok-3-mini.png">Grok 3 Mini</option>
+                  <option value="llama-4-maverick" data-avatar="llama-4-maverick.png">LLaMA 4 Maverick</option>
                 </select>
                 <i class="fas fa-angle-down select-arrow"></i>
               </div>
             </div>
 
             <div class="setting-item">
-              <label for="tempRange">دمای پاسخ‌ها (خلاقیت):</label>
+              <label for="tempRange">دما (خلاقیت):</label>
               <div class="range-with-value">
                 <input type="range" id="tempRange" min="0" max="1" step="0.1" value="0.7" class="setting-range">
                 <span id="tempValue" class="range-value">0.7</span>
               </div>
               <small class="setting-info">بالاتر = خلاق‌تر، پایین‌تر = دقیق‌تر</small>
             </div>
+
+             <!-- Advanced Settings Toggle -->
+             <button id="advancedSettingsToggle" class="toggle-settings-btn">
+                 <i class="fas fa-cog"></i> تنظیمات پیشرفته <i class="fas fa-chevron-down collapse-icon"></i>
+             </button>
+
+             <!-- Advanced Settings Section (Initially Hidden) -->
+             <div class="advanced-settings section-content" id="advancedSettingsContent" style="display: none;">
+                <div class="setting-item range-setting">
+                    <label for="topPRange">Top P:</label>
+                    <div class="range-with-value">
+                        <input type="range" id="topPRange" min="0" max="1" step="0.05" value="0.95" class="setting-range">
+                        <span id="topPValue" class="range-value">0.95</span>
+                    </div>
+                    <small class="setting-info">کنترل تصادفی بودن پاسخ‌ها</small>
+                </div>
+                <div class="setting-item range-setting">
+                    <label for="presencePenaltyRange">Presence Penalty:</label>
+                    <div class="range-with-value">
+                        <input type="range" id="presencePenaltyRange" min="-2.0" max="2.0" step="0.1" value="0.0" class="setting-range">
+                        <span id="presencePenaltyValue" class="range-value">0.0</span>
+                    </div>
+                    <small class="setting-info">جلوگیری از تکرار موضوعات</small>
+                </div>
+                <div class="setting-item range-setting">
+                    <label for="frequencyPenaltyRange">Frequency Penalty:</label>
+                    <div class="range-with-value">
+                        <input type="range" id="frequencyPenaltyRange" min="-2.0" max="2.0" step="0.1" value="0.0" class="setting-range">
+                        <span id="frequencyPenaltyValue" class="range-value">0.0</span>
+                    </div>
+                    <small class="setting-info">کاهش احتمال تکرار کلمات</small>
+                </div>
+                <!-- <div class="setting-item">
+                  <label for="maxTokensInput">حداکثر توکن‌ها:</label>
+                  <input type="number" id="maxTokensInput" value="1000" min="50" max="2048" class="setting-control" placeholder="مثال: 1000">
+                  <small class="setting-info">محدود کردن طول پاسخ</small>
+               </div> -->
+             </div>
+
           </div>
         </div>
 
@@ -74,16 +117,25 @@
            </button>
          </div>
 
-        <!-- Chat History Section (Placeholder for future) -->
-        <!-- <div class="nav-section chat-history-section">
-          <button class="section-header" aria-expanded="true" aria-controls="chatHistoryContent">
+        <!-- Chat History Section -->
+        <div class="nav-section chat-history-section">
+          <button class="section-header" aria-expanded="true" aria-controls="chatHistoryList">
             <span><i class="fas fa-history fa-fw"></i> تاریخچه گفتگو</span>
             <i class="fas fa-chevron-down collapse-icon"></i>
           </button>
-          <div class="section-content" id="chatHistoryContent">
-             <p class="placeholder-text">تاریخچه گفتگوها اینجا نمایش داده می‌شود.</p>
+          <div class="section-content" id="chatHistoryList">
+             <ul class="history-list" id="historyList">
+                <!-- Chat history items will be dynamically added here -->
+                <li class="placeholder-text">تاریخچه گفتگوها خالی است.</li>
+             </ul>
+             <div class="history-actions">
+                <button id="clearHistory" class="footer-btn danger-btn" aria-label="پاک کردن تاریخچه">
+                  <i class="fas fa-trash fa-fw"></i>
+                  <span>پاک کردن تاریخچه</span>
+                </button>
+             </div>
           </div>
-        </div> -->
+        </div>
       </nav>
 
       <div class="sidebar-footer">
@@ -102,9 +154,12 @@
     <main class="main-content">
       <!-- Chat Header -->
       <header class="chat-header">
+        <button class="header-btn mobile-menu-btn mobile-only" id="mobileMenuBtn" aria-label="باز کردن منو" title="باز کردن منو">
+          <i class="fas fa-bars"></i>
+        </button>
         <div class="chat-title">
           <div class="model-avatar-wrapper">
-            <img id="modelAvatar" src="gpt-4o-all.png" alt="Model Avatar" class="model-avatar"/>
+            <img id="modelAvatar" src="gpt-4o-all.png" alt="Model Avatar" class="model-avatar" loading="lazy"/>
             <span class="status-dot online"></span>
           </div>
           <div class="title-info">
@@ -119,9 +174,6 @@
           <button class="header-btn clear-chat" id="clearChatBtn" aria-label="پاک کردن گفتگو" title="پاک کردن گفتگو">
             <i class="fas fa-eraser"></i>
           </button>
-          <button class="header-btn mobile-menu-btn mobile-only" id="mobileMenuBtn" aria-label="باز کردن منو" title="باز کردن منو">
-            <i class="fas fa-bars"></i>
-          </button>
         </div>
       </header>
 
@@ -132,8 +184,8 @@
           <!-- Initial Welcome Message -->
           <div class="welcome-container" id="welcomeContainer">
             <div class="welcome-header">
-               <img src="logo.png" alt="Ravid AI Icon" class="welcome-icon">
-               <h2>به Ravid AI خوش آمدید!</h2>
+               <img src="logo.png" alt="Ravid AI Icon" class="welcome-icon" loading="lazy">
+               <h2>به راوید خوش آمدید!</h2>
             </div>
             <p class="welcome-text">دستیار هوش مصنوعی شما، آماده کمک به انجام کارهای شگفت‌انگیز!</p>
 
@@ -185,7 +237,7 @@
 
           <!-- Input Area -->
           <div class="input-area">
-            <textarea id="userInput" placeholder="پیام خود را بنویسید یا تصویر پیوست کنید..." rows="1"></textarea>
+            <textarea id="userInput" placeholder="پیام خود را بنویسید یا تصویر پیوست کنید..." rows="1" aria-label="متن پیام"></textarea>
 
             <!-- Hidden file input -->
             <input type="file" id="imageInput" accept="image/*" style="display: none;" aria-label="انتخاب تصویر">
@@ -218,7 +270,7 @@
 
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <!-- Load Languages YOU NEED for Prism -->
+  <!-- Prism Languages -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
