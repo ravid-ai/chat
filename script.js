@@ -1,7 +1,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- Constants & API Key ---
-  const COMET_API_KEY = "sk-OtiNbjY3B9e6rIFJRLifvBa1DNoJF6UjFZdHi0tJ2hXuF9SG"; // ← کلید واقعی شما
+  const COMET_API_KEY = "sk-anb4FsCoqzyAgMyC47RR1d6xrd3LPhSsR6Gk4a1ltM7xBDmF"; // ← کلید واقعی شما
   const API_URL = 'https://api.cometapi.com/v1/chat/completions';
   const CHAT_HISTORY_STORAGE_KEY = 'ravidAIChatHistory'; // Key for local storage
 
