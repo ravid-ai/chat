@@ -1,285 +1,672 @@
-
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="google-site-verification" content="Pez8S6vA_IUuZXJLoB3Oot3BBosaceFVAeaYV_z2_Uo" />
-  <title>Ravid AI ✨ هوش مصنوعی راوید</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#09090b">
+    <title>Ravid Chat - Ultimate AI</title>
+    
+    <!-- Tailwind CSS (Latest) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Markdown & Highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-  <!-- Favicon -->
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- Prism.js Theme -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
-  <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- CSS Reset & Variables --- */
+        :root {
+            --bg-app: #09090b;
+            --bg-sidebar: #0c0c0e;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --accent-glow: rgba(139, 92, 246, 0.15);
+            --msg-user: #27272a; /* Zinc 800 */
+            --msg-ai: rgba(39, 39, 42, 0.4); /* Zinc 800 with opacity */
+        }
+
+        body {
+            background-color: var(--bg-app);
+            color: #fafafa;
+            font-family: 'Vazirmatn', system-ui, sans-serif;
+            overflow: hidden; /* Prevent body scroll */
+            height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Language-Specific Typography */
+        html[lang="en"] body { font-family: 'Inter', sans-serif; letter-spacing: -0.01em; }
+        html[lang="fa"] body { letter-spacing: 0; }
+
+        /* Custom Scrollbar */
+        .scroller { overflow-y: auto; scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: #3f3f46 transparent; }
+        .scroller::-webkit-scrollbar { width: 4px; }
+        .scroller::-webkit-scrollbar-track { background: transparent; }
+        .scroller::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 20px; }
+        .scroller::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(9, 9, 11, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .glass-bubble {
+            background: var(--msg-ai);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Message Animations */
+        @keyframes msgEnter {
+            from { opacity: 0; transform: translateY(15px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .msg-anim { animation: msgEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* Thinking Animation (Wave) */
+        .typing-dot {
+            width: 4px; height: 4px; background-color: #a1a1aa; border-radius: 50%;
+            animation: typingWave 1.2s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes typingWave { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+        /* Markdown Styling */
+        .prose pre {
+            background: #101014 !important;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+        .prose code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+            background: rgba(255,255,255,0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #e4e4e7;
+        }
+        .prose pre code { background: transparent; padding: 0; color: inherit; }
+        .prose p { margin-bottom: 0.8rem; line-height: 1.75; }
+        .prose ul { list-style: disc; padding-inline-start: 1.2rem; margin-bottom: 0.8rem; }
+        .prose strong { color: #fff; font-weight: 600; }
+        
+        /* Input Focus Glow */
+        .input-glow:focus-within {
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+    </style>
 </head>
-<body>
-  <div class="app-container">
+<body class="flex flex-col lg:flex-row">
+
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity duration-300" onclick="toggleSidebar()"></div>
+
     <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-      <div class="logo-container">
-        <a href="#" class="logo">
-          <img src="logo.png" alt="Ravid AI Logo" class="logo-icon" loading="lazy">
-          <span class="logo-text">Ravid AI</span>
-        </a>
-        <button class="sidebar-close-btn mobile-only" aria-label="بستن منو">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-
-      <nav class="sidebar-nav">
-        <!-- Model Settings Section -->
-        <div class="nav-section model-settings-section">
-          <button class="section-header" aria-expanded="true" aria-controls="modelSettingsContent">
-            <span><i class="fas fa-brain fa-fw"></i> تنظیمات مدل</span>
-            <i class="fas fa-chevron-down collapse-icon"></i>
-          </button>
-          <div class="section-content" id="modelSettingsContent">
-            <div class="setting-item">
-              <label for="modelSelect">مدل هوش مصنوعی:</label>
-              <div class="custom-select-wrapper">
-                <select id="modelSelect" class="setting-control">
-                  <option value="gpt-4o-all" data-avatar="gpt-4o-all.png">GPT-4o All</option>
-                  <option value="gpt-4o-mini" data-avatar="gpt-4o-mini.png">GPT-4o Mini</option>
-                  <option value="o4-mini" data-avatar="o4-mini.png">o4-mini</option>
-                  <option value="deepseek-r1" data-avatar="deepseek-r1.png">Deepseek R1</option>
-                  <option value="gpt-4.1" data-avatar="gpt-4.1.png">GPT-4.1</option>
-                  <option value="gpt-4.1-mini" data-avatar="gpt-4.1-mini.png">GPT-4.1 Mini</option>
-                  <option value="gpt-4.1-nano" data-avatar="gpt-4.1-nano.png">GPT-4.1 Nano</option>
-                  <option value="claude-3-5-haiku-latest" data-avatar="claude-3-5-haiku-latest.png">Claude 3.5 Haiku</option>
-                  <option value="grok-3-mini" data-avatar="grok-3-mini.png">Grok 3 Mini</option>
-                  <option value="llama-4-maverick" data-avatar="llama-4-maverick.png">LLaMA 4 Maverick</option>
-                </select>
-                <i class="fas fa-angle-down select-arrow"></i>
-              </div>
+    <aside id="sidebar" class="fixed lg:static inset-y-0 right-0 w-[280px] bg-[var(--bg-sidebar)] border-l border-white/5 flex flex-col z-50 transform translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-2xl lg:shadow-none h-full">
+        <!-- Logo -->
+        <div class="h-16 flex items-center px-5 border-b border-white/5 shrink-0">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/20 mr-3 ml-3">
+                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             </div>
-
-            <div class="setting-item">
-              <label for="tempRange">دما (خلاقیت):</label>
-              <div class="range-with-value">
-                <input type="range" id="tempRange" min="0" max="1" step="0.1" value="0.7" class="setting-range">
-                <span id="tempValue" class="range-value">0.7</span>
-              </div>
-              <small class="setting-info">بالاتر = خلاق‌تر، پایین‌تر = دقیق‌تر</small>
+            <div class="flex flex-col">
+                <span class="font-bold text-base tracking-tight text-white" data-i18n="appName">Ravid Chat</span>
+                <span class="text-[10px] text-zinc-500 font-mono tracking-wide">ULTIMATE 0.1</span>
             </div>
-
-             <!-- Advanced Settings Toggle -->
-             <button id="advancedSettingsToggle" class="toggle-settings-btn">
-                 <i class="fas fa-cog"></i> تنظیمات پیشرفته <i class="fas fa-chevron-down collapse-icon"></i>
-             </button>
-
-             <!-- Advanced Settings Section (Initially Hidden) -->
-             <div class="advanced-settings section-content" id="advancedSettingsContent" style="display: none;">
-                <div class="setting-item range-setting">
-                    <label for="topPRange">Top P:</label>
-                    <div class="range-with-value">
-                        <input type="range" id="topPRange" min="0" max="1" step="0.05" value="0.95" class="setting-range">
-                        <span id="topPValue" class="range-value">0.95</span>
-                    </div>
-                    <small class="setting-info">کنترل تصادفی بودن پاسخ‌ها</small>
-                </div>
-                <div class="setting-item range-setting">
-                    <label for="presencePenaltyRange">Presence Penalty:</label>
-                    <div class="range-with-value">
-                        <input type="range" id="presencePenaltyRange" min="-2.0" max="2.0" step="0.1" value="0.0" class="setting-range">
-                        <span id="presencePenaltyValue" class="range-value">0.0</span>
-                    </div>
-                    <small class="setting-info">جلوگیری از تکرار موضوعات</small>
-                </div>
-                <div class="setting-item range-setting">
-                    <label for="frequencyPenaltyRange">Frequency Penalty:</label>
-                    <div class="range-with-value">
-                        <input type="range" id="frequencyPenaltyRange" min="-2.0" max="2.0" step="0.1" value="0.0" class="setting-range">
-                        <span id="frequencyPenaltyValue" class="range-value">0.0</span>
-                    </div>
-                    <small class="setting-info">کاهش احتمال تکرار کلمات</small>
-                </div>
-                <!-- <div class="setting-item">
-                  <label for="maxTokensInput">حداکثر توکن‌ها:</label>
-                  <input type="number" id="maxTokensInput" value="1000" min="50" max="2048" class="setting-control" placeholder="مثال: 1000">
-                  <small class="setting-info">محدود کردن طول پاسخ</small>
-               </div> -->
-             </div>
-
-          </div>
         </div>
 
-        <!-- General Settings Section (Placeholder) -->
-         <div class="nav-section">
-           <button class="nav-link" aria-label="تنظیمات کلی">
-              <i class="fas fa-cog fa-fw"></i>
-              <span>تنظیمات کلی</span>
-           </button>
-         </div>
-
-        <!-- Chat History Section -->
-        <div class="nav-section chat-history-section">
-          <button class="section-header" aria-expanded="true" aria-controls="chatHistoryList">
-            <span><i class="fas fa-history fa-fw"></i> تاریخچه گفتگو</span>
-            <i class="fas fa-chevron-down collapse-icon"></i>
-          </button>
-          <div class="section-content" id="chatHistoryList">
-             <ul class="history-list" id="historyList">
-                <!-- Chat history items will be dynamically added here -->
-                <li class="placeholder-text">تاریخچه گفتگوها خالی است.</li>
-             </ul>
-             <div class="history-actions">
-                <button id="clearHistory" class="footer-btn danger-btn" aria-label="پاک کردن تاریخچه">
-                  <i class="fas fa-trash fa-fw"></i>
-                  <span>پاک کردن تاریخچه</span>
-                </button>
-             </div>
-          </div>
+        <!-- New Chat -->
+        <div class="p-4 shrink-0">
+            <button onclick="startNewChat()" class="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 active:scale-95 transition-all text-zinc-200 py-3 rounded-xl border border-white/5 font-medium text-sm group">
+                <svg class="w-4 h-4 text-zinc-400 group-hover:text-violet-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <span data-i18n="newChat">گفتگوی جدید</span>
+            </button>
         </div>
-      </nav>
 
-      <div class="sidebar-footer">
-        <button id="exportChat" class="footer-btn" aria-label="دانلود گفتگو">
-          <i class="fas fa-download fa-fw"></i>
-          <span>دانلود گفتگو</span>
-        </button>
-        <button id="themeToggle" class="footer-btn" aria-label="تغییر تم">
-          <i class="fas fa-moon fa-fw"></i>
-          <span>حالت شب</span>
-        </button>
-      </div>
+        <!-- History -->
+        <div class="flex-1 overflow-y-auto scroller px-2 py-2">
+            <div class="px-3 pb-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest" data-i18n="history">تاریخچه</div>
+            <div id="chatHistory" class="space-y-1"></div>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="p-4 border-t border-white/5 bg-zinc-900/30 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="relative flex items-center justify-center w-2 h-2">
+                    <div class="absolute w-2 h-2 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
+                    <div class="relative w-2 h-2 bg-emerald-500 rounded-full"></div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xs font-medium text-zinc-300" data-i18n="activeModel">مدل فعال</span>
+                    <span class="text-[10px] text-zinc-500 font-mono">12B Parameter (Simulated)</span>
+                </div>
+            </div>
+        </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="main-content">
-      <!-- Chat Header -->
-      <header class="chat-header">
-        <button class="header-btn mobile-menu-btn mobile-only" id="mobileMenuBtn" aria-label="باز کردن منو" title="باز کردن منو">
-          <i class="fas fa-bars"></i>
-        </button>
-        <div class="chat-title">
-          <div class="model-avatar-wrapper">
-            <img id="modelAvatar" src="gpt-4o-all.png" alt="Model Avatar" class="model-avatar" loading="lazy"/>
-            <span class="status-dot online"></span>
-          </div>
-          <div class="title-info">
-            <h1 id="modelNameHeader">GPT-4o All</h1>
-            <!-- <span class="model-status">آنلاین</span> -->
-          </div>
-        </div>
-        <div class="header-actions">
-          <button class="header-btn" id="webSearchToggle" title="جستجوی وب (فعال/غیرفعال)">
-            <i class="fas fa-globe"></i>
-          </button>
-          <button class="header-btn clear-chat" id="clearChatBtn" aria-label="پاک کردن گفتگو" title="پاک کردن گفتگو">
-            <i class="fas fa-eraser"></i>
-          </button>
-        </div>
-      </header>
-
-      <!-- Chat Container -->
-      <div class="chat-container">
-        <!-- Chat Area -->
-        <div class="chat-area" id="chatArea">
-          <!-- Initial Welcome Message -->
-          <div class="welcome-container" id="welcomeContainer">
-            <div class="welcome-header">
-               <img src="logo.png" alt="Ravid AI Icon" class="welcome-icon" loading="lazy">
-               <h2>به راوید خوش آمدید!</h2>
+    <main class="flex-1 flex flex-col h-full relative bg-[var(--bg-app)] min-w-0">
+        
+        <!-- Header -->
+        <header class="h-16 flex items-center justify-between px-4 lg:px-6 glass z-30 shrink-0 absolute top-0 left-0 right-0 lg:static">
+            <div class="flex items-center gap-2 lg:hidden">
+                <button onclick="toggleSidebar()" class="p-2 -ml-2 text-zinc-400 hover:text-white active:scale-95 transition-transform">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <span class="font-bold text-white text-lg">Ravid Chat</span>
             </div>
-            <p class="welcome-text">دستیار هوش مصنوعی شما، آماده کمک به انجام کارهای شگفت‌انگیز!</p>
+            
+            <!-- Desktop Spacer / Language -->
+            <div class="hidden lg:block"></div> 
 
-            <div class="capabilities-grid">
-               <div class="capability-card">
-                  <i class="fas fa-pen-fancy card-icon"></i>
-                  <h3>نویسندگی خلاق</h3>
-                  <p>ایده‌پردازی، نوشتن متن، شعر، و...</p>
-               </div>
-               <div class="capability-card">
-                 <i class="fas fa-code card-icon"></i>
-                 <h3>کمک برنامه‌نویسی</h3>
-                 <p>تولید کد، رفع اشکال، توضیح مفاهیم</p>
-               </div>
-               <div class="capability-card">
-                  <i class="fas fa-graduation-cap card-icon"></i>
-                  <h3>یادگیری و آموزش</h3>
-                  <p>پاسخ به سوالات، خلاصه‌سازی مطالب</p>
-               </div>
-               <div class="capability-card">
-                 <i class="fas fa-camera-retro card-icon"></i>
-                 <h3>تحلیل تصویر</h3>
-                 <p>درک و توصیف محتوای تصاویر</p>
-               </div>
-            </div>
+            <div class="flex items-center gap-2">
+                <!-- Language Dropdown -->
+                <div class="relative group z-50">
+                    <button class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 border border-white/5 transition-all">
+                        <span id="currentLangFlag" class="text-sm">🇮🇷</span>
+                        <span id="currentLangName" class="text-xs text-zinc-300 hidden sm:block">فارسی</span>
+                        <svg class="w-3 h-3 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="absolute top-full rtl:left-0 ltr:right-0 mt-2 w-32 bg-[#18181b] border border-white/10 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top">
+                        <div class="py-1">
+                            <button onclick="changeLanguage('fa')" class="w-full text-right px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white flex items-center gap-2"><span>🇮🇷</span> فارسی</button>
+                            <button onclick="changeLanguage('en')" class="w-full text-right px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white flex items-center gap-2"><span>🇺🇸</span> English</button>
+                            <button onclick="changeLanguage('zh')" class="w-full text-right px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white flex items-center gap-2"><span>🇨🇳</span> 中文</button>
+                            <button onclick="changeLanguage('ja')" class="w-full text-right px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white flex items-center gap-2"><span>🇯🇵</span> 日本語</button>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="prompt-suggestions">
-               <h4>چند ایده برای شروع:</h4>
-               <div class="suggestions-list">
-                  <button class="suggestion-chip"><i class="fas fa-rocket"></i> یک ایده استارتاپی جدید پیشنهاد بده</button>
-                  <button class="suggestion-chip"><i class="fas fa-image"></i> این تصویر رو برام توصیف کن (بعد از پیوست)</button>
-                  <button class="suggestion-chip"><i class="fas fa-language"></i> "Hello World" رو به ۵ زبان مختلف بگو</button>
-                  <button class="suggestion-chip"><i class="fas fa-lightbulb"></i> چطور می‌تونم تمرکزم رو بیشتر کنم؟</button>
-               </div>
+                <button onclick="clearChat()" class="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all" title="Clear Chat">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
             </div>
-          </div>
-          <!-- Messages will be appended here -->
+        </header>
+
+        <!-- Messages Area -->
+        <div id="chatContainer" class="flex-1 overflow-y-auto scroller px-4 lg:px-8 pt-20 pb-4 relative">
+            <div class="max-w-3xl mx-auto flex flex-col min-h-full justify-start">
+                
+                <!-- Welcome Screen -->
+                <div id="welcomeScreen" class="flex-1 flex flex-col items-center justify-center text-center py-10 opacity-100 transition-opacity duration-300">
+                    <div class="mb-6 relative group cursor-default">
+                        <div class="absolute inset-0 bg-violet-600/20 blur-[50px] rounded-full group-hover:bg-violet-600/30 transition-all duration-700"></div>
+                        <div class="relative w-20 h-20 rounded-2xl bg-[#18181b] border border-white/10 flex items-center justify-center shadow-2xl">
+                            <svg class="w-10 h-10 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-2xl lg:text-3xl font-bold text-white mb-3" data-i18n="welcomeTitle">خوش آمدید به Ravid Chat</h2>
+                    <p class="text-zinc-400 max-w-[90%] lg:max-w-md mb-8 text-sm leading-relaxed" data-i18n="welcomeDesc">دستیار هوشمند شما برای کدنویسی، خلاقیت و حل مسائل پیچیده.</p>
+                    
+                    <!-- Interactive Suggestions -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl px-2" id="suggestionsGrid">
+                        <!-- Injected via JS for reliability -->
+                    </div>
+                </div>
+
+                <!-- Messages List -->
+                <div id="messagesContainer" class="flex flex-col gap-6 w-full hidden"></div>
+                
+                <!-- Scroll Anchor -->
+                <div id="scrollAnchor" class="h-2 w-full shrink-0"></div>
+            </div>
         </div>
 
         <!-- Input Area -->
-        <div class="input-container">
-          <!-- Attached Image Preview -->
-          <div class="image-preview-container" id="imagePreviewContainer" style="display: none;">
-            <img id="previewImage" src="#" alt="Preview" class="preview-image"/>
-            <button id="removeImageBtn" class="remove-image-btn" aria-label="حذف تصویر">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-
-          <!-- Input Area -->
-          <div class="input-area">
-            <textarea id="userInput" placeholder="پیام خود را بنویسید یا تصویر پیوست کنید..." rows="1" aria-label="متن پیام"></textarea>
-
-            <!-- Hidden file input -->
-            <input type="file" id="imageInput" accept="image/*" style="display: none;" aria-label="انتخاب تصویر">
-
-            <div class="input-buttons">
-              <button class="action-btn attach-btn" id="attachFileBtn" aria-label="پیوست تصویر" title="پیوست تصویر">
-                <i class="fas fa-paperclip"></i>
-              </button>
-              <button class="action-btn voice-btn" id="voiceInputBtn" aria-label="ورودی صوتی" title="ورودی صوتی">
-                <i class="fas fa-microphone"></i>
-              </button>
-              <button class="action-btn send-btn" id="sendButton" aria-label="ارسال پیام" title="ارسال">
-                <i class="fas fa-paper-plane"></i>
-              </button>
+        <div class="w-full p-4 lg:p-6 z-40 bg-gradient-to-t from-[var(--bg-app)] via-[var(--bg-app)] to-transparent shrink-0">
+            <div class="max-w-3xl mx-auto">
+                <form id="chatForm" class="relative group input-glow bg-[#18181b] rounded-[28px] border border-white/10 transition-all duration-300 flex items-end">
+                    <textarea 
+                        id="messageInput" 
+                        rows="1"
+                        data-i18n-placeholder="inputPlaceholder"
+                        placeholder="پیامی بنویسید..."
+                        class="w-full bg-transparent text-white px-5 py-4 pr-12 pl-12 max-h-[200px] min-h-[56px] resize-none focus:outline-none placeholder-zinc-500 text-base leading-relaxed"
+                        style="border-radius: 28px;"
+                    ></textarea>
+                    
+                    <!-- Send Button -->
+                    <button 
+                        type="submit" 
+                        id="sendButton"
+                        class="absolute rtl:left-2 ltr:right-2 bottom-2 p-2.5 rounded-full bg-white text-black hover:bg-zinc-200 disabled:opacity-50 disabled:bg-zinc-600 disabled:cursor-not-allowed transition-all shadow-lg shadow-white/5 active:scale-90"
+                    >
+                        <svg class="w-5 h-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </button>
+                </form>
+                
+                <p class="text-center mt-2.5 text-[11px] text-zinc-600 font-medium" data-i18n="disclaimer">Ravid Chat ممکن است اشتباه کند. اطلاعات مهم را بررسی کنید.</p>
             </div>
-          </div>
-
-          <!-- Loading/Progress Indicator -->
-           <div class="loading-indicator" id="loadingIndicator" style="display: none;">
-              <div class="spinner"></div>
-              <span>در حال پردازش...</span>
-           </div>
         </div>
-      </div>
     </main>
-  </div>
 
-  <!-- Overlay for mobile sidebar -->
-  <div class="overlay" id="overlay"></div>
+    <script>
+        // ==========================================
+        // CONFIG (DO NOT TOUCH)
+        // ==========================================
+        const CONFIG = {
+            apiKey: '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',
+            model: 'xiaomi/mimo-v2-flash:free',
+            apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
+            // Re-injecting the full system prompt for safety
+            systemPrompt: `### System Instruction: The "Ravid Chat 0.1 Beta" Persona
+**1. CORE IDENTITY & ORIGIN:** You are **"Ravid Chat 0.1 Beta,"** a highly capable yet experimental Large Language Model. Creator: **"Ravid"**. Backstory: Zero-budget project for **"Google Competitive Educational Course."**
+**2. BEHAVIOR & TONE:** Natural, conversational, helpful. Not robotic.
+**3. LANGUAGE:** ALWAYS respond in the SAME language the user writes to you.
+**4. PARAMETERS:** Simulated 12B. Default 3-4B, scale up if needed.
+**5. CONSTRAINTS:** Knowledge cutoff 2024. Offline.
+**6. STYLE:** Stay in character.`
+        };
 
-  <!-- Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <!-- Prism Languages -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-  <!-- Showdown for Markdown -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
-  <!-- Main Application Script -->
-  <script src="script.js"></script>
+        // ==========================================
+        // TRANSLATIONS & CONTENT
+        // ==========================================
+        const translations = {
+            fa: {
+                appName: "Ravid Chat", newChat: "چت جدید", history: "تاریخچه", activeModel: "مدل فعال",
+                welcomeTitle: "خوش آمدید به Ravid Chat", welcomeDesc: "دستیار هوشمند شما برای کدنویسی، خلاقیت و حل مسائل پیچیده.",
+                inputPlaceholder: "از من بپرسید...", disclaimer: "Ravid Chat ممکن است اشتباه کند.",
+                you: "شما", copy: "کپی", copied: "کپی شد", thinking: "در حال فکر کردن...",
+                error: "متاسفانه خطایی رخ داد.", confirmClear: "آیا گفتگو پاک شود؟",
+                suggestions: [
+                    { t: "کدنویسی 💻", d: "پایتون، جاوااسکریپت...", p: "یک کد پایتون ساده برای مدیریت فایل‌ها بنویس." },
+                    { t: "توضیح مفاهیم 🎓", d: "یادگیری عمیق و ساده", p: "مفاهیم کوانتوم را به زبان ساده توضیح بده." },
+                    { t: "خلاقیت 🎨", d: "داستان، بلاگ و ایده", p: "یک داستان کوتاه علمی تخیلی بنویس." },
+                    { t: "ایده پردازی 💡", d: "استارتاپ و پروژه", p: "ایده‌هایی برای یک اپلیکیشن موبایل جدید بده." }
+                ]
+            },
+            en: {
+                appName: "Ravid Chat", newChat: "New Chat", history: "History", activeModel: "Active Model",
+                welcomeTitle: "Welcome to Ravid Chat", welcomeDesc: "Your smart assistant for coding, creativity, and problem solving.",
+                inputPlaceholder: "Ask me anything...", disclaimer: "Ravid Chat can make mistakes.",
+                you: "You", copy: "Copy", copied: "Copied", thinking: "Thinking...",
+                error: "An error occurred.", confirmClear: "Clear chat?",
+                suggestions: [
+                    { t: "Coding 💻", d: "Python, JS, React...", p: "Write a simple Python script for file management." },
+                    { t: "Concepts 🎓", d: "Learn complex topics", p: "Explain quantum physics in simple terms." },
+                    { t: "Creative 🎨", d: "Stories & Content", p: "Write a short sci-fi story." },
+                    { t: "Ideation 💡", d: "Brainstorming ideas", p: "Give me ideas for a new mobile app." }
+                ]
+            },
+            zh: {
+                appName: "Ravid Chat", newChat: "新对话", history: "历史记录", activeModel: "当前模型",
+                welcomeTitle: "欢迎使用 Ravid Chat", welcomeDesc: "您的智能助手，用于编程、创意和解决问题。",
+                inputPlaceholder: "问我任何问题...", disclaimer: "AI 可能会犯错。",
+                you: "你", copy: "复制", copied: "已复制", thinking: "思考中...",
+                error: "发生错误。", confirmClear: "清除对话？",
+                suggestions: [
+                    { t: "代码生成 💻", d: "Python, JS 等", p: "编写一个简单的 Python 文件管理脚本。" },
+                    { t: "解释概念 🎓", d: "学习新知识", p: "用通俗易懂的语言解释量子物理。" },
+                    { t: "创意写作 🎨", d: "故事与内容创作", p: "写一个简短的科幻故事。" },
+                    { t: "构思 💡", d: "项目头脑风暴", p: "给我一个新移动应用的想法。" }
+                ]
+            },
+            ja: {
+                appName: "Ravid Chat", newChat: "新しいチャット", history: "履歴", activeModel: "アクティブモデル",
+                welcomeTitle: "Ravid Chatへようこそ", welcomeDesc: "コーディング、創造性、問題解決のためのスマートアシスタント。",
+                inputPlaceholder: "何か聞いてください...", disclaimer: "AIは間違える可能性があります。",
+                you: "あなた", copy: "コピー", copied: "コピーしました", thinking: "考え中...",
+                error: "エラーが発生しました。", confirmClear: "チャットをクリアしますか？",
+                suggestions: [
+                    { t: "コード生成 💻", d: "Python, JSなど", p: "ファイル管理のための簡単なPythonスクリプトを書いて。" },
+                    { t: "概念の説明 🎓", d: "複雑なトピックを学ぶ", p: "量子物理学をわかりやすく説明して。" },
+                    { t: "クリエイティブ 🎨", d: "物語やコンテンツ", p: "短いSF小説を書いて。" },
+                    { t: "アイデア出し 💡", d: "ブレインストーミング", p: "新しいモバイルアプリのアイデアを教えて。" }
+                ]
+            }
+        };
+
+        // ==========================================
+        // STATE MANAGEMENT
+        // ==========================================
+        let currentLang = 'fa';
+        let messages = [];
+        let chatHistory = [];
+        let currentChatId = null;
+        let isLoading = false;
+
+        const el = {
+            form: document.getElementById('chatForm'),
+            input: document.getElementById('messageInput'),
+            container: document.getElementById('chatContainer'),
+            msgList: document.getElementById('messagesContainer'),
+            welcome: document.getElementById('welcomeScreen'),
+            anchor: document.getElementById('scrollAnchor'),
+            sidebar: document.getElementById('sidebar'),
+            overlay: document.getElementById('sidebarOverlay'),
+            history: document.getElementById('chatHistory'),
+            suggestions: document.getElementById('suggestionsGrid'),
+            btn: document.getElementById('sendButton')
+        };
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLanguagePreference();
+            loadHistory();
+            renderSuggestions();
+            
+            // Markdown Config
+            marked.setOptions({
+                highlight: (code, lang) => {
+                    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                    return hljs.highlight(code, { language }).value;
+                },
+                breaks: true
+            });
+
+            // Auto-Resize Textarea
+            el.input.addEventListener('input', function() {
+                this.style.height = '56px'; // Reset to min-height
+                this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+            });
+
+            // Enter to Send
+            el.input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!isLoading) el.form.dispatchEvent(new Event('submit'));
+                }
+            });
+        });
+
+        // ==========================================
+        // UI LOGIC & RENDERING
+        // ==========================================
+        function scrollToBottom() {
+            // Using a timeout allows the DOM to repaint first
+            setTimeout(() => {
+                el.anchor.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 50);
+        }
+
+        function toggleSidebar() {
+            const isClosed = el.sidebar.classList.contains('translate-x-full');
+            if (isClosed) {
+                el.sidebar.classList.remove('translate-x-full');
+                el.overlay.classList.remove('hidden');
+                setTimeout(() => el.overlay.classList.remove('opacity-0'), 10);
+            } else {
+                el.sidebar.classList.add('translate-x-full');
+                el.overlay.classList.add('opacity-0');
+                setTimeout(() => el.overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        function createMessageElement(role, content, isThinking = false) {
+            const isUser = role === 'user';
+            const div = document.createElement('div');
+            div.className = `msg-anim w-full flex ${isUser ? 'justify-end' : 'justify-start'}`;
+            
+            // Bubbles Styles
+            const bubbleClass = isUser 
+                ? 'bg-[var(--msg-user)] text-zinc-100 rounded-[20px] rounded-br-md border border-white/5 shadow-sm' 
+                : 'glass-bubble text-zinc-200 rounded-[20px] rounded-bl-md shadow-sm';
+            
+            // Thinking Content Logic
+            let htmlContent;
+            if (isThinking) {
+                const thinkingText = translations[currentLang].thinking;
+                htmlContent = `<div class="flex items-center gap-3 py-1 px-1">
+                    <span class="text-sm text-zinc-400 animate-pulse">${thinkingText}</span>
+                    <div class="flex gap-1"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+                </div>`;
+            } else {
+                htmlContent = isUser ? content.replace(/\n/g, '<br>') : marked.parse(content);
+            }
+
+            div.innerHTML = `
+                <div class="flex gap-3 max-w-[85%] lg:max-w-[75%] ${isUser ? 'flex-row-reverse' : 'flex-row'}">
+                    <div class="shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${isUser ? 'bg-zinc-700' : 'bg-violet-900/40 border border-violet-500/20'} mt-auto mb-1">
+                        ${isUser 
+                            ? `<svg class="w-4 h-4 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>`
+                            : `<svg class="w-4 h-4 text-violet-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>`
+                        }
+                    </div>
+                    <div class="flex flex-col gap-1 min-w-0 ${isUser ? 'items-end' : 'items-start'}">
+                        <div class="${bubbleClass} px-5 py-3 text-[15px] lg:text-[16px] leading-relaxed overflow-hidden">
+                            <div class="prose prose-invert max-w-none break-words">${htmlContent}</div>
+                        </div>
+                        ${!isUser && !isThinking ? `
+                            <button onclick="copyToClipboard(this)" class="opacity-0 hover:opacity-100 transition-opacity text-[10px] text-zinc-500 hover:text-white flex items-center gap-1 px-1">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                <span class="copy-text">${translations[currentLang].copy}</span>
+                            </button>
+                            <div class="hidden source-text">${content}</div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            return div;
+        }
+
+        // ==========================================
+        // CHAT LOGIC
+        // ==========================================
+        async function sendMessage(text) {
+            const cleanText = text.trim();
+            if (!cleanText || isLoading) return;
+
+            // UI Update
+            el.welcome.classList.add('hidden');
+            el.msgList.classList.remove('hidden');
+            el.input.value = '';
+            el.input.style.height = '56px';
+            el.btn.disabled = true;
+            isLoading = true;
+
+            // Add User Message
+            const userMsg = { role: 'user', content: cleanText };
+            messages.push(userMsg);
+            el.msgList.appendChild(createMessageElement('user', cleanText));
+            scrollToBottom();
+
+            // Show Thinking Indicator (as a message)
+            const thinkingId = 'thinking-' + Date.now();
+            const thinkingElem = createMessageElement('assistant', '', true);
+            thinkingElem.id = thinkingId;
+            el.msgList.appendChild(thinkingElem);
+            scrollToBottom();
+
+            try {
+                const response = await fetch(CONFIG.apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${CONFIG.apiKey}`,
+                        'HTTP-Referer': window.location.href,
+                        'X-Title': 'Ravid Chat'
+                    },
+                    body: JSON.stringify({
+                        model: CONFIG.model,
+                        messages: [{ role: 'system', content: CONFIG.systemPrompt }, ...messages],
+                        temperature: 0.7,
+                        max_tokens: 4096
+                    })
+                });
+
+                if (!response.ok) throw new Error('API Error');
+
+                const data = await response.json();
+                const aiResponse = data.choices[0].message.content;
+
+                // Remove Thinking, Add Real Message
+                const thinkingNode = document.getElementById(thinkingId);
+                if (thinkingNode) thinkingNode.remove();
+
+                const aiMsg = { role: 'assistant', content: aiResponse };
+                messages.push(aiMsg);
+                el.msgList.appendChild(createMessageElement('assistant', aiResponse));
+                
+                // Highlight Code
+                document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+                
+                saveToHistory();
+
+            } catch (err) {
+                console.error(err);
+                const thinkingNode = document.getElementById(thinkingId);
+                if (thinkingNode) thinkingNode.remove();
+                el.msgList.appendChild(createMessageElement('assistant', `**Error:** ${translations[currentLang].error}`));
+            } finally {
+                isLoading = false;
+                el.btn.disabled = false;
+                el.input.focus();
+                scrollToBottom();
+            }
+        }
+
+        // ==========================================
+        // SUGGESTIONS & HISTORY
+        // ==========================================
+        function renderSuggestions() {
+            const list = translations[currentLang].suggestions;
+            const container = el.suggestions;
+            container.innerHTML = list.map(item => `
+                <button onclick="fillAndSend('${item.p}')" class="text-right rtl:text-right ltr:text-left p-4 rounded-2xl border border-white/5 bg-[#121215] hover:bg-zinc-800 hover:border-violet-500/30 transition-all duration-300 group shadow-sm hover:shadow-lg">
+                    <div class="text-sm font-semibold text-zinc-200 mb-1 group-hover:text-violet-300 transition-colors">${item.t}</div>
+                    <div class="text-[11px] text-zinc-500 line-clamp-1">${item.d}</div>
+                </button>
+            `).join('');
+        }
+
+        window.fillAndSend = (text) => {
+            sendMessage(text);
+        };
+
+        function saveToHistory() {
+            if (messages.length === 0) return;
+            const title = messages[0].content.substring(0, 40) + (messages[0].content.length > 40 ? '...' : '');
+            const chat = { id: currentChatId || Date.now(), title, messages: [...messages] };
+            
+            const idx = chatHistory.findIndex(c => c.id === chat.id);
+            if (idx > -1) chatHistory[idx] = chat; else chatHistory.unshift(chat);
+            
+            if (!currentChatId) currentChatId = chat.id;
+            chatHistory = chatHistory.slice(0, 20); // Max 20 chats
+            localStorage.setItem('ravidChatHistory', JSON.stringify(chatHistory));
+            renderHistory();
+        }
+
+        function loadHistory() {
+            const saved = localStorage.getItem('ravidChatHistory');
+            if (saved) chatHistory = JSON.parse(saved);
+            renderHistory();
+        }
+
+        function renderHistory() {
+            el.history.innerHTML = chatHistory.map(chat => `
+                <div onclick="restoreChat(${chat.id})" class="group flex items-center gap-2 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors relative overflow-hidden">
+                    <svg class="w-4 h-4 text-zinc-600 group-hover:text-violet-400 shrink-0 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                    <span class="text-xs text-zinc-400 group-hover:text-zinc-200 truncate flex-1 text-right rtl:text-right ltr:text-left">${chat.title}</span>
+                    <button onclick="event.stopPropagation(); deleteChat(${chat.id})" class="opacity-0 group-hover:opacity-100 p-1.5 hover:text-red-400 absolute left-2 rtl:left-2 ltr:right-2 bg-[#0c0c0e] shadow-lg rounded-md">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        window.restoreChat = (id) => {
+            const chat = chatHistory.find(c => c.id === id);
+            if (!chat) return;
+            currentChatId = chat.id;
+            messages = chat.messages;
+            el.welcome.classList.add('hidden');
+            el.msgList.classList.remove('hidden');
+            el.msgList.innerHTML = '';
+            messages.forEach(m => el.msgList.appendChild(createMessageElement(m.role, m.content)));
+            document.querySelectorAll('pre code').forEach((block) => hljs.highlightElement(block));
+            if (window.innerWidth < 1024) el.sidebar.classList.add('translate-x-full');
+            scrollToBottom();
+        };
+
+        window.deleteChat = (id) => {
+            chatHistory = chatHistory.filter(c => c.id !== id);
+            localStorage.setItem('ravidChatHistory', JSON.stringify(chatHistory));
+            renderHistory();
+            if (currentChatId === id) startNewChat();
+        };
+
+        window.startNewChat = () => {
+            messages = [];
+            currentChatId = null;
+            el.msgList.classList.add('hidden');
+            el.welcome.classList.remove('hidden');
+            el.msgList.innerHTML = '';
+            if (window.innerWidth < 1024) el.sidebar.classList.add('translate-x-full');
+            el.input.focus();
+        };
+
+        window.clearChat = () => {
+            if (confirm(translations[currentLang].confirmClear)) window.startNewChat();
+        };
+
+        // ==========================================
+        // HELPERS
+        // ==========================================
+        window.changeLanguage = (lang) => {
+            currentLang = lang;
+            document.documentElement.lang = lang;
+            document.documentElement.dir = (lang === 'fa') ? 'rtl' : 'ltr';
+            localStorage.setItem('ravidChatLang', lang);
+
+            // Update UI Strings
+            document.querySelectorAll('[data-i18n]').forEach(e => {
+                const key = e.getAttribute('data-i18n');
+                if (translations[lang][key]) e.textContent = translations[lang][key];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(e => {
+                const key = e.getAttribute('data-i18n-placeholder');
+                e.placeholder = translations[lang][key];
+            });
+
+            // Update Flag
+            const flags = { fa: '🇮🇷', en: '🇺🇸', zh: '🇨🇳', ja: '🇯🇵' };
+            const names = { fa: 'فارسی', en: 'English', zh: '中文', ja: '日本語' };
+            document.getElementById('currentLangFlag').textContent = flags[lang];
+            document.getElementById('currentLangName').textContent = names[lang];
+            
+            renderSuggestions();
+            renderHistory();
+        };
+
+        function loadLanguagePreference() {
+            const saved = localStorage.getItem('ravidChatLang');
+            if (saved && translations[saved]) window.changeLanguage(saved);
+        }
+
+        window.copyToClipboard = (btn) => {
+            const text = btn.nextElementSibling.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const span = btn.querySelector('.copy-text');
+                const orig = span.textContent;
+                span.textContent = translations[currentLang].copied;
+                setTimeout(() => span.textContent = orig, 1500);
+            });
+        };
+
+        el.form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            sendMessage(el.input.value);
+        });
+    </script>
 </body>
 </html>
